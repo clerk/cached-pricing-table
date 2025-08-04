@@ -200,7 +200,7 @@ export const PricingTable = ({ plans }: { plans: CommercePlan[] }) => {
     useSubscription();
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
+        <div className="flex flex-col items-center justify-center px-6 py-12">
             <PeriodProvider>
                 <PeriodToggle />
                 <div className="mx-auto mt-12 grid max-w-screen-lg grid-cols-1 items-center gap-8 lg:grid-cols-3">

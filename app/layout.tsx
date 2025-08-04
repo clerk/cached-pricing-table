@@ -31,8 +31,6 @@ export default function RootLayout({
             appearance={{
                 baseTheme: shadcn,
             }}
-            signInUrl="/sign-in"
-            signUpUrl="/sign-up"
         >
             <html lang="en" className="h-full" suppressHydrationWarning>
                 <body
