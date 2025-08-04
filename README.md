@@ -9,7 +9,7 @@
 </p>
 <div align="center">
   <h1>
-    Next.js Clerk auth starter template
+    Cached Pricing table in Next.js with Clerk Billing
   </h1>
   <a href="https://www.npmjs.com/package/@clerk/nextjs">
     <img alt="" src="https://img.shields.io/npm/dm/@clerk/nextjs" />
