@@ -18,14 +18,12 @@ export async function PricingTableWithData() {
     cacheTag("pricing-table");
 
     const { data } = await client.billing
-        .getPlanList()
+        .getPlanList({ payerType: "user" })
         .then((list) => ({
-            data: list.data
-                .map((plan) => ({
-                    ...plan,
-                    features: plan.features.map((feature) => ({ ...feature })),
-                }))
-                .filter((plan) => plan.forPayerType === "user"),
+            data: list.data.map((plan) => ({
+                ...plan,
+                features: plan.features.map((feature) => ({ ...feature })),
+            })),
         }))
         .catch(() => ({ data: [] }));
 
