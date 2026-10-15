@@ -16,7 +16,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useMemo,
   useState,
 } from "react";
 
@@ -31,16 +30,14 @@ import { SignInButton, useAuth, useClerk } from "@clerk/nextjs";
 const ANNUAL_DISCOUNT = 20;
 
 const PlanCTA = ({ plan }: { plan: BillingPlan }) => {
-  const { data: subscription } = useSubscription();
+  const { data: subscription, revalidate } = useSubscription();
   const { userId } = useAuth();
   const { loaded } = useClerk();
   const { selectedBillingPeriod } = useContext(PeriodContext);
 
-  const isSubscribed = useMemo(() => {
-    return subscription?.subscriptionItems.some(
-      (item) => item.plan.id === plan.id,
-    );
-  }, [subscription?.subscriptionItems, plan]);
+  const isSubscribed = subscription?.subscriptionItems.some(
+    (item) => item.plan.id === plan.id,
+  );
 
   if (isSubscribed) {
     return (
@@ -63,7 +60,11 @@ const PlanCTA = ({ plan }: { plan: BillingPlan }) => {
   }
 
   return (
-    <CheckoutButton planId={plan.id} planPeriod={selectedBillingPeriod}>
+    <CheckoutButton
+      planId={plan.id}
+      planPeriod={selectedBillingPeriod}
+      onSubscriptionComplete={() => void revalidate()}
+    >
       <Button variant="default" size="lg" className="mt-6 w-full">
         {userId ? "Subscribe" : "Get started"}
       </Button>
