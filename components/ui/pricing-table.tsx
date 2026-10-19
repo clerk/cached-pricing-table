@@ -1,6 +1,6 @@
 "use client";
 
-import { CommercePlan } from "@clerk/backend";
+import type { BillingPlan } from "@clerk/backend";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -12,13 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Check, CircleHelp } from "lucide-react";
-import {
-    createContext,
-    useCallback,
-    useContext,
-    useMemo,
-    useState,
-} from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 import {
     CheckoutButton,
@@ -26,21 +20,19 @@ import {
     useSubscription,
 } from "@clerk/nextjs/experimental";
 
-import { SignedOut, SignInButton, useAuth, useClerk } from "@clerk/nextjs";
+import { SignInButton, useAuth, useClerk } from "@clerk/nextjs";
 
 const ANNUAL_DISCOUNT = 20;
 
-const PlanCTA = ({ plan }: { plan: CommercePlan }) => {
-    const { data: subscription } = useSubscription();
+const PlanCTA = ({ plan }: { plan: BillingPlan }) => {
+    const { data: subscription, revalidate } = useSubscription();
     const { userId } = useAuth();
     const { loaded } = useClerk();
     const { selectedBillingPeriod } = useContext(PeriodContext);
 
-    const isSubscribed = useMemo(() => {
-        return subscription?.subscriptionItems.some(
-            (item) => item.plan.id === plan.id
-        );
-    }, [subscription?.subscriptionItems, plan]);
+    const isSubscribed = subscription?.subscriptionItems.some(
+        (item) => item.plan.id === plan.id
+    );
 
     if (isSubscribed) {
         return (
@@ -63,7 +55,11 @@ const PlanCTA = ({ plan }: { plan: CommercePlan }) => {
     }
 
     return (
-        <CheckoutButton planId={plan.id} planPeriod={selectedBillingPeriod}>
+        <CheckoutButton
+            planId={plan.id}
+            planPeriod={selectedBillingPeriod}
+            onSubscriptionComplete={() => void revalidate()}
+        >
             <Button variant="default" size="lg" className="mt-6 w-full">
                 {userId ? "Subscribe" : "Get started"}
             </Button>
@@ -75,12 +71,13 @@ const PlanCard = ({
     plan,
     isPopular,
 }: {
-    plan: CommercePlan;
+    plan: BillingPlan;
     isPopular: boolean;
 }) => {
     const { selectedBillingPeriod } = useContext(PeriodContext);
 
-    const isMonthlyOnly = plan.hasBaseFee && plan.annualFee.amount === 0;
+    const isMonthlyOnly =
+        plan.hasBaseFee && (!plan.annualFee || plan.annualFee.amount === 0);
 
     return (
         <div
@@ -102,8 +99,10 @@ const PlanCard = ({
             <p className="my-4 text-4xl font-bold">
                 $
                 {selectedBillingPeriod === "month" || isMonthlyOnly
-                    ? plan.fee.amountFormatted
-                    : plan.annualMonthlyFee.amountFormatted}
+                    ? (plan.fee?.amountFormatted ?? "0")
+                    : (plan.annualMonthlyFee?.amountFormatted ??
+                      plan.fee?.amountFormatted ??
+                      "0")}
                 <span className="text-muted-foreground ml-1.5 text-sm font-normal">
                     /month
                 </span>
@@ -195,7 +194,7 @@ const PeriodToggle = () => {
  *
  * Data are fetched are fetched client side, it is a adviced that you display a skeleton via the `fallback` prop.
  */
-export const PricingTable = ({ plans }: { plans: CommercePlan[] }) => {
+export const PricingTable = ({ plans }: { plans: BillingPlan[] }) => {
     // Prefetch subscripton
     useSubscription();
 

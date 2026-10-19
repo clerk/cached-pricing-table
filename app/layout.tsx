@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
-import { shadcn } from "@clerk/themes";
+import { shadcn } from "@clerk/ui/themes";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -27,14 +27,14 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <ClerkProvider
-            appearance={{
-                baseTheme: shadcn,
-            }}
-        >
-            <html lang="en" className="h-full" suppressHydrationWarning>
-                <body
-                    className={`${geistSans.variable} ${geistMono.variable} flex min-h-full flex-col antialiased`}
+        <html lang="en" className="h-full" suppressHydrationWarning>
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} flex min-h-full flex-col antialiased`}
+            >
+                <ClerkProvider
+                    appearance={{
+                        theme: shadcn,
+                    }}
                 >
                     <ThemeProvider
                         attribute="class"
@@ -42,13 +42,11 @@ export default function RootLayout({
                         enableSystem
                         disableTransitionOnChange
                     >
-                        <header className="flex h-16 items-center justify-end gap-4 border-b p-4">
-                            <ClientHeader />
-                        </header>
+                        <ClientHeader />
                         {children}
                     </ThemeProvider>
-                </body>
-            </html>
-        </ClerkProvider>
+                </ClerkProvider>
+            </body>
+        </html>
     );
 }
